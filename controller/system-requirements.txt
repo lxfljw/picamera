@@ -1,0 +1,4 @@
+vim
+supervisor
+exfat-utils
+mosquitto

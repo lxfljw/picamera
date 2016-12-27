@@ -1,0 +1,35 @@
+{
+  "camera_settings": {
+    "led": false,
+    "vflip": true,
+    "hflip": true,
+    "annotate_text_size": 128
+  },
+  "mqtt":{
+  	"clientID": "camera_123",
+  	"brokerURL": "139.59.170.74",
+  	"brokerPort": 1883,
+  	"pinsTopic": "pins/A/",
+	"publish":{
+ 		"rebootTopic": "device/camera/:deviceID/set/reboot",
+  		"settingsTopic": "device/camera/:deviceID/set/settings",
+  		"captureTopic": "device/camera/:deviceID/set/capture",
+		"startCaptureTopic": "device/camera/:deviceID/set/start_capture",
+		"stopCaptureTopic": "device/camera/:deviceID/set/stop_capture",
+		"startStreamTopic": "device/camera/:deviceID/set/start_capture",
+		"stopStreamTopic": "device/camera/:deviceID/set/stop_capture"
+       },
+       "subscribe":{
+		"statusTopic": "device/camera/:deviceID/get/status"		
+       }
+  },
+  "server":{"ip":"192.168.1.77:3000","url":"/device/:deviceID/images", "interval": 120},
+  "backupMountScript": "sudo mount -t cifs -o user=Qualia-A,password=manovich  //Qualia-As-Mac-mini.local/images /media/nas/",
+  "backupDirectory": "/media/nas/A/",
+  "localImageFolder": "/home/pi/Desktop",
+  "pin_settings": {
+    "18": false
+  },
+  "backupActive": true,
+  "fallbackLoopTime": 10	
+}

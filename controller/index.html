@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pi Controller</title>
+
+    <!-- Bootstrap -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/dashboard.css" rel="stylesheet">
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="../static/js/jquery-1.12.0.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../static/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="glyphicon glyphicon-align-justify"></span></button>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+          <ul class="nav navbar-nav navbar-left">
+            <li><a href="#" class="navbar-brand">PiCameraRig</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#"><button id="shutdown" type="button" class="btn btn-danger">Shutdown</button></a></li>
+            <script type="text/javascript">
+            $( document ).ready(function() {
+              /*shutdown panel*/
+            var shutdown = new WebSocket("ws://controller.local:1880/ws/shutdown/");
+            shutdown.onopen = function(){
+              console.log("connected to shutdown");
+            };
+
+            $( "#shutdown" ).click(function(event) {
+                event.preventDefault();
+                console.log("shutdown");
+                shutdown.send("shutdown");
+            });
+
+            });
+            </script>
+          </ul>
+
+        </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Capture Loop</h3>
+            </div>
+            <div class="panel-body">
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="timeframe">Timeframe in Seconds</label>
+                  <input type="text" class="form-control" id="timeframe" placeholder="5" value="5">
+                </div>
+                <button id="loop" class="btn btn-default">Start Loop</button>
+                <button id="capture" class="btn btn-default">Single Capture</button>
+              </form>
+
+            </div>
+          </div>
+
+          <script type="text/javascript">
+          $( document ).ready(function() {
+
+          //$("#timeframe").val("5");
+
+          var looping = false;
+          var loopinterval = null;
+
+            /*capture panel*/
+          var cp = new WebSocket("ws://controller.local:1880/ws/capture/");
+          cp.onopen = function(){
+            console.log("connected to capture");
+          };
+
+          function triggerCapture(){
+            console.log("capturing");
+            cp.send("capture");
+          };
+
+          $( "#capture" ).click(function(event) {
+              event.preventDefault();
+              triggerCapture();
+          });
+
+          $( "#loop" ).click(function(event) {
+              event.preventDefault();
+              looping = !looping;
+              $("#timeframe").prop('disabled', looping);
+              if(looping){
+                $("#loop").html("Stop Loop");
+
+                loopinterval = setInterval(triggerCapture, parseInt($("#timeframe").val()) * 1000);
+              }else{
+                $("#loop").html("Start Loop");
+                clearInterval(loopinterval);
+              }
+
+          });
+
+          });
+          </script>
+
+      </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Camera A</h3>
+            </div>
+            <div class="panel-body">
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="A_Brightness_val">Brightness (0:100) 50</label>
+                  <input type="text" class="form-control" id="A_Brightness_val" placeholder="50" value="50">
+                </div>
+                <button id="A_Brightness" class="btn btn-default">Update</button>
+              </form>
+              <br>
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="A_Contrast_val">Contrast (-100:100) 0</label>
+                  <input type="text" class="form-control" id="A_Contrast_val" placeholder="0" value="0">
+                </div>
+                <button id="A_Contrast" class="btn btn-default">Update</button>
+              </form>
+              <br>
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="A_sharpness_val">Sharpness (-100:100) 0</label>
+                  <input type="text" class="form-control" id="A_sharpness_val" placeholder="0" value="0">
+                </div>
+                <button id="A_sharpness" class="btn btn-default">Update</button>
+              </form>
+              <br>
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="A_saturation_val">Saturation (-100:100) 0</label>
+                  <input type="text" class="form-control" id="A_saturation_val" placeholder="0" value="0">
+                </div>
+                <button id="A_saturation" class="btn btn-default">Update</button>
+              </form>
+              <br>
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="A_iso_val">ISO 100</label>
+                  <select id="A_iso_val" class="form-control">
+                    <option>100</option>
+                    <option>200</option>
+                    <option>320</option>
+                    <option>400</option>
+                    <option>500</option>
+                    <option>640</option>
+                    <option>800</option>
+                  </select>
+                </div>
+                <button id="A_iso" class="btn btn-default">Update</button>
+              </form>
+            </div>
+          </div>
+
+          <script type="text/javascript">
+          $( document ).ready(function() {
+            /*shutdown panel*/
+          var A = new WebSocket("ws://controller.local:1880/ws/config/A/");
+          A.onopen = function(){
+            console.log("connected to A");
+          };
+
+          $( "#A_Brightness" ).click(function(event) {
+              event.preventDefault();
+              A.send(JSON.stringify({
+                    "setting":"brightness",
+                    "value":$("#A_Brightness_val").val()
+                }));
+          });
+
+          $( "#A_Contrast" ).click(function(event) {
+              event.preventDefault();
+              A.send(JSON.stringify({
+                    "setting":"contrast",
+                    "value":$("#A_Contrast_val").val()
+                }));
+          });
+
+          $( "#A_sharpness" ).click(function(event) {
+              event.preventDefault();
+              A.send(JSON.stringify({
+                    "setting":"sharpness",
+                    "value":$("#A_sharpness_val").val()
+                }));
+          });
+
+          $( "#A_saturation" ).click(function(event) {
+              event.preventDefault();
+              A.send(JSON.stringify({
+                    "setting":"saturation",
+                    "value":$("#A_saturation_val").val()
+                }));
+          });
+
+          $( "#A_iso" ).click(function(event) {
+              event.preventDefault();
+              A.send(JSON.stringify({
+                    "setting":"iso",
+                    "value":$("#A_iso_val").val()
+                }));
+          });
+
+          });
+          </script>
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Camera B</h3>
+              </div>
+              <div class="panel-body">
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="B_Brightness_val">Brightness (0:100) 50</label>
+                    <input type="text" class="form-control" id="B_Brightness_val" placeholder="50" value="50">
+                  </div>
+                  <button id="B_Brightness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="B_Contrast_val">Contrast (-100:100) 0</label>
+                    <input type="text" class="form-control" id="B_Contrast_val" placeholder="0" value="0">
+                  </div>
+                  <button id="B_Contrast" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="B_sharpness_val">Sharpness (-100:100) 0</label>
+                    <input type="text" class="form-control" id="B_sharpness_val" placeholder="0" value="0">
+                  </div>
+                  <button id="B_sharpness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="B_saturation_val">Saturation (-100:100) 0</label>
+                    <input type="text" class="form-control" id="B_saturation_val" placeholder="0" value="0">
+                  </div>
+                  <button id="B_saturation" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="B_iso_val">ISO 100</label>
+                    <select id="B_iso_val" class="form-control">
+                      <option>100</option>
+                      <option>200</option>
+                      <option>320</option>
+                      <option>400</option>
+                      <option>500</option>
+                      <option>640</option>
+                      <option>800</option>
+                    </select>
+                  </div>
+                  <button id="B_iso" class="btn btn-default">Update</button>
+                </form>
+              </div>
+            </div>
+
+            <script type="text/javascript">
+            $( document ).ready(function() {
+              /*shutdown panel*/
+            var B = new WebSocket("ws://controller.local:1880/ws/config/B/");
+            B.onopen = function(){
+              console.log("connected to B");
+            };
+
+            $( "#B_Brightness" ).click(function(event) {
+                event.preventDefault();
+                B.send(JSON.stringify({
+                      "setting":"brightness",
+                      "value":$("#B_Brightness_val").val()
+                  }));
+            });
+
+            $( "#B_Contrast" ).click(function(event) {
+                event.preventDefault();
+                B.send(JSON.stringify({
+                      "setting":"contrast",
+                      "value":$("#B_Contrast_val").val()
+                  }));
+            });
+
+            $( "#B_sharpness" ).click(function(event) {
+                event.preventDefault();
+                B.send(JSON.stringify({
+                      "setting":"sharpness",
+                      "value":$("#B_sharpness_val").val()
+                  }));
+            });
+
+            $( "#B_saturation" ).click(function(event) {
+                event.preventDefault();
+                B.send(JSON.stringify({
+                      "setting":"saturation",
+                      "value":$("#B_saturation_val").val()
+                  }));
+            });
+
+            $( "#B_iso" ).click(function(event) {
+                event.preventDefault();
+                B.send(JSON.stringify({
+                      "setting":"iso",
+                      "value":$("#B_iso_val").val()
+                  }));
+            });
+
+            });
+            </script>
+
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Camera C</h3>
+              </div>
+              <div class="panel-body">
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="C_Brightness_val">Brightness (0:100) 50</label>
+                    <input type="text" class="form-control" id="C_Brightness_val" placeholder="50" value="50">
+                  </div>
+                  <button id="C_Brightness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="C_Contrast_val">Contrast (-100:100) 0</label>
+                    <input type="text" class="form-control" id="C_Contrast_val" placeholder="0" value="0">
+                  </div>
+                  <button id="C_Contrast" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="C_sharpness_val">Sharpness (-100:100) 0</label>
+                    <input type="text" class="form-control" id="C_sharpness_val" placeholder="0" value="0">
+                  </div>
+                  <button id="C_sharpness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="C_saturation_val">Saturation (-100:100) 0</label>
+                    <input type="text" class="form-control" id="C_saturation_val" placeholder="0" value="0">
+                  </div>
+                  <button id="C_saturation" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="C_iso_val">ISO 100</label>
+                    <select id="C_iso_val" class="form-control">
+                      <option>100</option>
+                      <option>200</option>
+                      <option>320</option>
+                      <option>400</option>
+                      <option>500</option>
+                      <option>640</option>
+                      <option>800</option>
+                    </select>
+                  </div>
+                  <button id="C_iso" class="btn btn-default">Update</button>
+                </form>
+              </div>
+            </div>
+
+            <script type="text/javascript">
+            $( document ).ready(function() {
+              /*shutdown panel*/
+            var C = new WebSocket("ws://controller.local:1880/ws/config/C/");
+            C.onopen = function(){
+              console.log("connected to C");
+            };
+
+            $( "#C_Brightness" ).click(function(event) {
+                event.preventDefault();
+                C.send(JSON.stringify({
+                      "setting":"brightness",
+                      "value":$("#C_Brightness_val").val()
+                  }));
+            });
+
+            $( "#C_Contrast" ).click(function(event) {
+                event.preventDefault();
+                C.send(JSON.stringify({
+                      "setting":"contrast",
+                      "value":$("#C_Contrast_val").val()
+                  }));
+            });
+
+            $( "#C_sharpness" ).click(function(event) {
+                event.preventDefault();
+                C.send(JSON.stringify({
+                      "setting":"sharpness",
+                      "value":$("#C_sharpness_val").val()
+                  }));
+            });
+
+            $( "#C_saturation" ).click(function(event) {
+                event.preventDefault();
+                C.send(JSON.stringify({
+                      "setting":"saturation",
+                      "value":$("#C_saturation_val").val()
+                  }));
+            });
+
+            $( "#C_iso" ).click(function(event) {
+                event.preventDefault();
+                C.send(JSON.stringify({
+                      "setting":"iso",
+                      "value":$("#C_iso_val").val()
+                  }));
+            });
+
+            });
+            </script>
+
+          </div>
+
+
+
+          <div class="col-md-6">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Camera D</h3>
+              </div>
+              <div class="panel-body">
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="D_Brightness_val">Brightness (0:100) 50</label>
+                    <input type="text" class="form-control" id="D_Brightness_val" placeholder="50" value="50">
+                  </div>
+                  <button id="D_Brightness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="D_Contrast_val">Contrast (-100:100) 0</label>
+                    <input type="text" class="form-control" id="D_Contrast_val" placeholder="0" value="0">
+                  </div>
+                  <button id="D_Contrast" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="D_sharpness_val">Sharpness (-100:100) 0</label>
+                    <input type="text" class="form-control" id="D_sharpness_val" placeholder="0" value="0">
+                  </div>
+                  <button id="D_sharpness" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="D_saturation_val">Saturation (-100:100) 0</label>
+                    <input type="text" class="form-control" id="D_saturation_val" placeholder="0" value="0">
+                  </div>
+                  <button id="D_saturation" class="btn btn-default">Update</button>
+                </form>
+                <br>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="D_iso_val">ISO 100</label>
+                    <select id="D_iso_val" class="form-control">
+                      <option>100</option>
+                      <option>200</option>
+                      <option>320</option>
+                      <option>400</option>
+                      <option>500</option>
+                      <option>640</option>
+                      <option>800</option>
+                    </select>
+                  </div>
+                  <button id="D_iso" class="btn btn-default">Update</button>
+                </form>
+              </div>
+            </div>
+
+            <script type="text/javascript">
+            $( document ).ready(function() {
+              /*shutdown panel*/
+            var D = new WebSocket("ws://controller.local:1880/ws/config/D/");
+            D.onopen = function(){
+              console.log("connected to D");
+            };
+
+            $( "#D_Brightness" ).click(function(event) {
+                event.preventDefault();
+                D.send(JSON.stringify({
+                      "setting":"brightness",
+                      "value":$("#D_Brightness_val").val()
+                  }));
+            });
+
+            $( "#D_Contrast" ).click(function(event) {
+                event.preventDefault();
+                D.send(JSON.stringify({
+                      "setting":"contrast",
+                      "value":$("#D_Contrast_val").val()
+                  }));
+            });
+
+            $( "#D_sharpness" ).click(function(event) {
+                event.preventDefault();
+                D.send(JSON.stringify({
+                      "setting":"sharpness",
+                      "value":$("#D_sharpness_val").val()
+                  }));
+            });
+
+            $( "#D_saturation" ).click(function(event) {
+                event.preventDefault();
+                D.send(JSON.stringify({
+                      "setting":"saturation",
+                      "value":$("#D_saturation_val").val()
+                  }));
+            });
+
+            $( "#D_iso" ).click(function(event) {
+                event.preventDefault();
+                D.send(JSON.stringify({
+                      "setting":"iso",
+                      "value":$("#D_iso_val").val()
+                  }));
+            });
+
+            });
+            </script>
+
+          </div>
+
+
+
+
+
+      </div>
+
+        <div class="row">
+          <div class="col-md-12">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Debug Messages</h3>
+              </div>
+              <div class="panel-body">
+                <table class="table" id="debug">
+                  <thead>
+                    <tr> <th>Timestamp</th> <th> Message</th> </tr>
+                  </thead>
+                  <tbody>
+                    <tr> <td>-</td> <td>Messages Appear Here</td> </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+
+            <script type="text/javascript">
+            $( document ).ready(function() {
+
+              /*debug panel*/
+            var debug = new WebSocket("ws://controller.local:1880/ws/debug/");
+            debug.onopen = function(){
+              console.log("connected to debug");
+            };
+            debug.onmessage = function (evt){
+               var d = Date(evt.timeStamp);
+               $('#debug > tbody > tr:first').before('<tr><td>'+d.toString()+'</td><td>'+evt.data+'</td></tr>');
+            };
+
+            });
+            </script>
+
+        </div>
+        </div>
+
+    </div>
+
+
+
+  </body>
+</html>

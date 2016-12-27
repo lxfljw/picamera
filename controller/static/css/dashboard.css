@@ -1,0 +1,82 @@
+body, html {
+    height: 100%;
+  }
+
+body { padding-top: 70px; font-family: 'Lato', sans-serif; font-size: 18px;}
+
+.carousel-control,.carousel-control.left,.carousel-control.right{ background: none;}
+/*h1{font: 100 92px/1 "lato"; text-transform: uppercase; }*/
+/*h1{font: 100 64px/1 "lato"; text-transform: uppercase; }*/
+/*h2{font: 100 48px/1 "lato"; text-transform: uppercase; }*/
+
+
+@media (min-width: 1200px) {
+    body{
+        margin-bottom: 100px;
+    }
+}
+@media (max-width: 1200px) {
+    body{
+        margin-bottom: none;
+    }
+
+}
+/*@media (max-width: 1444px) {*/
+    .navbar-fixed-top img{
+        width: 80px;
+    }
+/*}*/
+@media (max-width: 768px) {
+    body{
+        padding-top: 100px;
+    }
+    h1{font: 100 52px/1 "lato"; text-transform: uppercase; }
+}
+
+
+.navbar-fixed-bottom img {
+    height: 60px;
+}
+.navbar-static-bottom img {
+    height: 60px;
+    /*top: 100px;*/
+}
+ .navbar-static-bottom{
+    margin-bottom: none;
+}
+
+#visualization{
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: -10px;
+}
+.qualia-options{
+    padding-top: 5px;
+}
+
+#map-canvas { width: 100%; height: 100%; }
+  #map-canvas img {
+      max-width: none;
+  }
+
+  .mission-select{
+    font-size: 8pc;
+  }
+
+#venuemap{
+  height: 600px;
+}
+
+#id_gps_map{
+  height: 600px;
+}
+.leaflet-popup-content{
+  width: 152px !important;
+}
+#navbar-logo{
+    width: 30px;
+    float: left;
+    padding-top: 10px;
+}

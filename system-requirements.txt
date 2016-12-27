@@ -1,0 +1,4 @@
+vim
+supervisor
+python-picamera
+exfat-utils
