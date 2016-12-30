@@ -10,6 +10,8 @@ import requests
 import logging
 
 
+
+
 class cameraThread(threading.Thread):
     # setup the thread object
     # def __init__(self, id, brokerURL, brokerPort, settings):
@@ -18,7 +20,6 @@ class cameraThread(threading.Thread):
         self.event = threading.Event()
         self.count = 10
         
-
         self.filePath = filePath
         self.settingsFilePath = settingsFilePath
         self.interval = server['interval']
@@ -33,16 +34,13 @@ class cameraThread(threading.Thread):
 
         self.enabled = False
         # set up camera
-        self.camera = picamera.PiCamera()
-
-
-        self.camera.annotate_text = ""
+        # self.camera = picamera.PiCamera()
+        self.capture()
 
         # load settings
         for key in settings:
             print key, ':', settings[key]
-
-            setattr(self.camera, key, settings[key])
+            #setattr(self.camera, key, settings[key])
 
     def run(self):
         print 'runing'
@@ -81,7 +79,7 @@ class cameraThread(threading.Thread):
     def sendImage(self):
         logging.info('sendImage '+'http://'+self.ip+self.url)
 
-        files = {'file':open('/home/pi/Desktop/test.jpg','rb')}
+        files = {'file':open(self.filePath + '/test.jpg','rb')}
         print 'http://'+self.ip+self.url
         try:
             r = requests.post('http://'+self.ip+self.url, files=files)
@@ -95,22 +93,34 @@ class cameraThread(threading.Thread):
     def capture(self):
 
         logging.info('capture')
-        
-        self.camera.start_preview(fullscreen=False, window=(100,20,640,480))
-        self.camera.resolution = (2592, 1944)
-        
-        # hide text
-        text = self.camera.annotate_text
-        self.camera.annotate_text = ""
 
-        now = time.time()
-        print self.filePath + str(now) + '.jpg', datetime.date.today()
-        name = datetime.date.today()
-        #self.camera.capture(self.filePath + '/'+str(name) + '.jpg')
-        self.camera.capture(self.filePath + '/test.jpg')
+        # hide text
+        #text = self.camera.annotate_text
+        #self.camera.annotate_text = ""
+
+
+
+        self.camera = picamera.PiCamera()
+        try: 
+            self.camera.start_preview(fullscreen=False, window=(100,20,640,480))
+            time.sleep(1)
+
+            self.camera.resolution = (2592, 1944)
+            #self.camera.capture(self.filePath + '/'+str(name) + '.jpg')
+            self.camera.capture(self.filePath + '/test.jpg')
+            
+
+            #now = time.time()
+            #print self.filePath + str(now) + '.jpg', datetime.date.today()
+            #name = datetime.date.today()
+            #self.camera.annotate_text = text
+            
+            pass
         
-        self.camera.annotate_text = text
-        
+        finally:
+            self.camera.stop_preview()
+            self.camera.close()
+
 
     def update_setting(self, setting, value):
         # live update

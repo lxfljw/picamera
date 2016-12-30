@@ -6,7 +6,7 @@
     "annotate_text_size": 128
   },
   "mqtt":{
-  	"clientID": "camera_123",
+  	"clientID": "camera_132",
   	"brokerURL": "139.59.170.74",
   	"brokerPort": 1883,
   	"pinsTopic": "pins/A/",

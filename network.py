@@ -14,6 +14,11 @@ from threading import Timer
 
 import logging
 
+import base64
+import random, string
+import math
+
+
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -158,7 +163,12 @@ class mqttThread(threading.Thread):
         logging.info("Connection connected " + str(rc))
         #self.capture()
         self.client.publish(self.statusTopic, json.dumps({'status':1}) )
-        
+ 
+    def on_disconnect(self, client, userdata, rc):
+        if rc != 0:
+            print("Unexpected MQTT disconnection. Will auto-reconnect")
+            logging.info("Unexpected MQTT disconnection. Will auto-reconnect" + str(rc))
+
 
     def fallback(self):
         while True:
@@ -185,11 +195,46 @@ class mqttThread(threading.Thread):
             #self.client.subscribe(self.pinsTopic, qos=0)
 
             self.client.on_message = self.on_message
+            self.client.on_disconnect = self.on_disconnect
 
-            
+
             self.client.publish("debug", self.clientID + " connected IP:")  # + get_ip_address('eth0')
             #self.cameraThread.update_annotation("Camera " + self.clientID, "green")
             self.client.loop_forever()
         except socket.gaierror:
             print "No Connection"
             #self.fallback()
+
+
+
+    #  mqtt message 
+    #  https://developer.ibm.com/recipes/tutorials/sending-and-receiving-pictures-from-a-raspberry-pi-via-mqtt/
+    #  http://stackoverflow.com/questions/36429609/mqtt-paho-python-reliable-reconnect
+    def convertImageToBase64():
+        with open(self.filePath + '/test.jpg', "rb") as image_file:
+            encoded = base64.b64encode(image_file.read())
+            return encoded
+
+
+    def randomword(length):
+        return ''.join(random.choice(string.lowercase) for i in range(length)) 
+
+
+    def publishEncodedImage(encoded):
+        
+        packet_size=3000
+
+        end = packet_size
+        start = 0
+        length = len(encoded)
+        picId = randomword(8)
+        pos = 0
+        no_of_packets = math.ceil(length/packet_size)
+
+         
+        while start <= len(encoded):
+            data = {"data": encoded[start:end], "pic_id":picId, "pos": pos, "size": no_of_packets}
+            self.client.publish("Image-Data",json.JSONEncoder().encode(data))
+            end += packet_size
+            start += packet_size
+            pos = pos +1        
