@@ -13,8 +13,8 @@ import logging
 # load settings from file
 
 settings = None
-settingsFilePath = '/home/pi/Desktop/PiCameraRig-master/settings.json'
-loggingFilePath = '/home/pi/Desktop/PiCameraRig-master/logging.log'
+settingsFilePath = '/home/pi/Desktop/PiCameraClient/settings.json'
+loggingFilePath = '/home/pi/Desktop/PiCameraClient/logging.log'
 
 with open(settingsFilePath) as data_file:
     conent = data_file
@@ -24,7 +24,7 @@ with open(settingsFilePath) as data_file:
 
 logging.basicConfig(filename=loggingFilePath, level=logging.INFO, format='%(asctime)s;%(levelname)s;%(message)s')
 
-
+print "-----------------------------------run.py----------------------------"
 clientID = settings['mqtt']['clientID']
 server_setting = settings["server"]
 mqtt_setting = settings['mqtt']
@@ -37,7 +37,7 @@ mqtt_setting['publish']['startCaptureTopic'] = mqtt_setting['publish']['startCap
 mqtt_setting['publish']['stopCaptureTopic'] = mqtt_setting['publish']['stopCaptureTopic'].replace(':deviceID',clientID)
 mqtt_setting['publish']['startStreamTopic'] = mqtt_setting['publish']['startStreamTopic'].replace(':deviceID',clientID)
 mqtt_setting['publish']['stopStreamTopic'] = mqtt_setting['publish']['stopStreamTopic'].replace(':deviceID',clientID)
-
+print "-----------------------------------run.py1----------------------------"
 mqtt_setting['subscribe']['statusTopic'] = mqtt_setting['subscribe']['statusTopic'].replace(':deviceID',clientID)
 
 m = mqttThread(

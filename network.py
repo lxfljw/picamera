@@ -37,7 +37,7 @@ class mqttThread(threading.Thread):
 
         # setup thread variables
 
-        print '............',mqttObject['clientID'],  mqttObject['brokerURL'],mqttObject['brokerPort']
+        print '........network.py..........',mqttObject['clientID'],  mqttObject['brokerURL'],mqttObject['brokerPort']
         
         self.clientID = mqttObject['clientID']
         self.brokerURL = mqttObject['brokerURL']
@@ -182,25 +182,30 @@ class mqttThread(threading.Thread):
 
         print self.brokerURL
         try:
-            print self.brokerURL, self.brokerPort
+            print self.brokerURL, self.brokerPort,'here is port test'
             self.client.connect(self.brokerURL, self.brokerPort, 60)
-
             self.client.subscribe(self.captureTopic, qos=0)
+            
             self.client.subscribe(self.rebootTopic, qos=0)
+            
             self.client.subscribe(self.settingsTopic, qos=0)
+            
             self.client.subscribe(self.startCaptureTopic, qos=0)
             self.client.subscribe(self.stopCaptureTopic, qos=0)
             self.client.subscribe(self.startStreamTopic, qos=0)
             self.client.subscribe(self.stopStreamTopic, qos=0)
             #self.client.subscribe(self.pinsTopic, qos=0)
-
+            
             self.client.on_message = self.on_message
+            
             self.client.on_disconnect = self.on_disconnect
 
 
             self.client.publish("debug", self.clientID + " connected IP:")  # + get_ip_address('eth0')
             #self.cameraThread.update_annotation("Camera " + self.clientID, "green")
+            
             self.client.loop_forever()
+            
         except socket.gaierror:
             print "No Connection"
             #self.fallback()

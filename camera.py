@@ -8,8 +8,7 @@ import os
 import datetime
 import requests
 import logging
-
-
+from termcolor import colored
 
 
 class cameraThread(threading.Thread):
@@ -28,23 +27,28 @@ class cameraThread(threading.Thread):
         print server
         print settings['led']
         print server['url']
-        
+        print "+++++++++++++++++++camera.py+++++++++++++++++"
         self.ip = server['ip']
         self.url = server['url']
 
-        self.enabled = False
+        self.enabled = True
         # set up camera
         # self.camera = picamera.PiCamera()
-        self.capture()
-
+        print (colored('capture 1','red'))
+        #self.capture()
+#==============================================
+        self.vediotape()
+        
         # load settings
         for key in settings:
             print key, ':', settings[key]
+           
             #setattr(self.camera, key, settings[key])
 
     def run(self):
-        print 'runing'
+        print 'runing......'
         logging.info('running')
+      
         #while self.count > 0 and not self.event.is_set():
         while True:
             #print self.count
@@ -55,10 +59,13 @@ class cameraThread(threading.Thread):
             #logging.info('run')
             if(self.enabled == True):
                 #logging.info('running enabled')
-                print 'capture and send image'
-                self.capture()
-                self.sendImage()
-            
+                print colored('capture and send image'  ,'green')
+#===========================================================
+               # self.capture()
+                #self.sendImage()
+                self.vediotape()
+                self.sendvedio()
+ #===========================================================               
             self.event.wait(self.interval)
         print 'stopping'
 
@@ -78,22 +85,63 @@ class cameraThread(threading.Thread):
 
     def sendImage(self):
         logging.info('sendImage '+'http://'+self.ip+self.url)
-
         files = {'file':open(self.filePath + '/test.jpg','rb')}
-        print 'http://'+self.ip+self.url
+        print colored('http://'+self.ip+self.url,'green')
+        print files
         try:
             r = requests.post('http://'+self.ip+self.url, files=files)
         except requests.exceptions.RequestException as e:
             loggin.error( str(e))
 
+#=============================================================
+    def sendvedio(self):
+        logging.info('sendIvedio '+'http://'+self.ip+self.url)
+        files = {'file':open(self.filePath + '/test.h264','rb')}
+        print colored('http://'+self.ip+self.url,'green')
+        print files
+        try:
+            r = requests.post('http://'+self.ip+self.url, files=files)
+        except requests.exceptions.RequestException as e:
+            loggin.error( str(e))
     def update_annotation(self, text, color_string):
         self.camera.annotate_text = text
         self.camera.annotate_background = picamera.Color.from_string(color_string)
+#=================================================================
+    def vediotape(self):
 
+        logging.info('vediotape')
+        print colored("vediotape",'yellow')
+        # hide text
+        #text = self.camera.annotate_text
+        #self.camera.annotate_text = ""
+
+
+
+        self.camera = picamera.PiCamera()
+        try: 
+            self.camera.start_preview()
+            time.sleep(1)
+
+           
+            #self.camera.capture(self.filePath + '/'+str(name) + '.jpg')
+            self.camera.start_recording(self.filePath + '/test.h264')
+            self.camera.wait_recording(10)
+            self.camera.stop_recording()
+            #now = time.time()
+            #print self.filePath + str(now) + '.jpg', datetime.date.today()
+            #name = datetime.date.today()
+            #self.camera.annotate_text = text
+            
+            pass
+        
+        finally:
+            self.camera.stop_preview()
+            self.camera.close()
+#=====================================================================
     def capture(self):
 
         logging.info('capture')
-
+        print colored("capture",'yellow')
         # hide text
         #text = self.camera.annotate_text
         #self.camera.annotate_text = ""
@@ -120,8 +168,7 @@ class cameraThread(threading.Thread):
         finally:
             self.camera.stop_preview()
             self.camera.close()
-
-
+            
     def update_setting(self, setting, value):
         # live update
         print "updating " + setting

@@ -7,7 +7,7 @@
   },
   "mqtt":{
   	"clientID": "camera_132",
-  	"brokerURL": "139.59.170.74",
+  	"brokerURL": "192.168.43.183",
   	"brokerPort": 1883,
   	"pinsTopic": "pins/A/",
 	"publish":{
@@ -23,7 +23,7 @@
 		"statusTopic": "device/camera/:deviceID/get/status"		
        }
   },
-  "server":{"ip":"192.168.1.77:3000","url":"/device/:deviceID/images", "interval": 120},
+  "server":{"ip":"192.168.43.183:3000","url":"/device/:deviceID/images", "interval": 10},
   "backupMountScript": "sudo mount -t cifs -o user=Qualia-A,password=manovich  //Qualia-As-Mac-mini.local/images /media/nas/",
   "backupDirectory": "/media/nas/A/",
   "localImageFolder": "/home/pi/Desktop",
